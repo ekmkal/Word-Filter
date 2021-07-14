@@ -108,7 +108,11 @@ export const updateWords = (wordList) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.put(`/api/words/${userInfo._id}/mywords`, wordList, config);
+    const { data } = await axios.put(
+      `/api/words/${userInfo._id}/mywords`,
+      { words: wordList },
+      config
+    );
 
     dispatch({
       type: WORD_UPDATE_SUCCESS,

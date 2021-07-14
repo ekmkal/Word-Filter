@@ -6,6 +6,7 @@ import {
   WORD_UPDATE_REQUEST,
   WORD_UPDATE_SUCCESS,
   WORD_UPDATE_FAIL,
+  WORD_UPDATE_RESET,
   WORD_LIST_REQUEST,
   WORD_LIST_SUCCESS,
   WORD_LIST_FAIL,
@@ -23,7 +24,7 @@ import {
   FAV_LIST_RESET,
 } from '../constants/wordConstants';
 
-export const wordListMyReducer = (state = { myWords: [] }, action) => {
+export const wordListMyReducer = (state = {}, action) => {
   switch (action.type) {
     case WORD_LIST_MY_REQUEST:
       return {
@@ -54,6 +55,8 @@ export const wordUpdateReducer = (state = {}, action) => {
       return { loading: false, success: true };
     case WORD_UPDATE_FAIL:
       return { loading: false, error: action.payload };
+    case WORD_UPDATE_RESET:
+      return {};
     default:
       return state;
   }
