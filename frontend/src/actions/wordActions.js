@@ -91,7 +91,7 @@ export const listUserWords = (userId) => async (dispatch, getState) => {
   }
 };
 
-export const updateWords = (wordList) => async (dispatch, getState) => {
+export const updateWords = (wordArr) => async (dispatch, getState) => {
   try {
     dispatch({
       type: WORD_UPDATE_REQUEST,
@@ -110,7 +110,7 @@ export const updateWords = (wordList) => async (dispatch, getState) => {
 
     const { data } = await axios.put(
       `/api/words/${userInfo._id}/mywords`,
-      { words: wordList },
+      { words: wordArr },
       config
     );
 

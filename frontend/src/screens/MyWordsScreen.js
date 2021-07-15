@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Table, Button } from 'react-bootstrap';
+import { Form, Col, Row, Table, Button, ListGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
+import NewWordForm from '../components/NewWordForm';
 import { listMyWords, updateWords } from '../actions/wordActions';
 import { WORD_UPDATE_RESET } from '../constants/wordConstants';
 
 const MyWordsScreen = ({ history }) => {
   const [myWordsInState, setMyWordsInState] = useState([]);
+  // const [myNewWords, setMyNewWords] = useState(['some', 'new', 'words']);
+  // const [myNewWords, setMyNewWords] = useState([]);
+  // const [newWord, setNewWord] = useState('');
 
   const dispatch = useDispatch();
 
@@ -32,13 +36,40 @@ const MyWordsScreen = ({ history }) => {
     }
   }, [dispatch, history, myWords, success, userInfo]);
 
-  const removeHandler = (index) => {
-    if (window.confirm('Are you sure to update word list?')) {
-      const updatedWordsArr = myWordsInState;
-      updatedWordsArr.splice(index, 1);
-      dispatch(updateWords(updatedWordsArr));
+  const removeWordFromStore = (word) => {
+    if (window.confirm(`Are you sure to remove "${word}" from your word store?`)) {
+      const updatedWordsArr = [...myWordsInState];
+      const index = updatedWordsArr.indexOf(word);
+      if (index !== -1) {
+        updatedWordsArr.splice(index, 1);
+        setMyWordsInState(updatedWordsArr);
+      }
     }
   };
+
+  // const addNewWord = (n) => {
+  //   if (!myWordsInState.includes(n) && !myNewWords.includes(n)) {
+  //     setNewWord('');
+  //     setMyNewWords([...myNewWords, n]);
+  //   }
+  // };
+
+  // const removeNewWord = (n) => {
+  //   const updatedNewWordsArr = [...myNewWords];
+  //   console.log(updatedNewWordsArr);
+  //   const index = updatedNewWordsArr.indexOf(n);
+  //   console.log(index);
+  //   if (index !== -1) {
+  //     updatedNewWordsArr.splice(index, 1);
+  //     setMyNewWords(updatedNewWordsArr);
+  //   }
+  // };
+
+  // const updateHandler = () => {
+  //   if (window.confirm('Are you sure to update your word store?')) {
+  //     dispatch(updateWords(myWordsInState));
+  //   }
+  // };
 
   return (
     <>
@@ -48,30 +79,38 @@ const MyWordsScreen = ({ history }) => {
         <Message variant="danger">{error}</Message>
       ) : (
         <>
-          <Table striped bordered hover responsive className="table-sm">
-            <thead>
-              <tr>
-                <th>WORDS</th>
-                <th>REMOVE FROM MY WORDS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myWordsInState.map((word, index) => (
-                <tr key={index}>
-                  <td>{word}</td>
-                  <td>
-                    <Button
-                      variant="danger"
-                      className="btn-sm"
-                      onClick={() => removeHandler(index)}
-                    >
-                      <i className="fas fa-trash"></i>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <Row>
+            <Col sm="6">
+              <Table striped bordered hover responsive className="table-sm">
+                <thead>
+                  <tr>
+                    <th>MY WORDS STORE</th>
+                    <th>REMOVE FROM MY STORE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {myWordsInState.map((word, index) => (
+                    <tr key={index}>
+                      <td>{word}</td>
+                      <td>
+                        <Button
+                          variant="danger"
+                          className="btn-sm"
+                          onClick={() => removeWordFromStore(word)}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Col>
+
+            <Col sm="6">
+              <NewWordForm />
+            </Col>
+          </Row>
         </>
       )}
     </>

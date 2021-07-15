@@ -29,7 +29,7 @@ const HomeScreen = () => {
       <h1>HOME PAGE</h1>
       {userInfo && (
         <Message style={{ color: '#b36458' }} variant="success">
-          Welcome {userInfo.name}!
+          Welcome {userInfo.username}!
         </Message>
       )}
     </>
