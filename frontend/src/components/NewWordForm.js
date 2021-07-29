@@ -4,7 +4,6 @@ import { Form, Row, Col, Button } from 'react-bootstrap';
 import { updateWords } from '../actions/wordActions';
 
 const NewWordForm = () => {
-  // const [myNewWords, setMyNewWords] = useState(['some', 'new', 'words']);
   const [myNewWords, setMyNewWords] = useState([]);
   const [newWord, setNewWord] = useState('');
 
@@ -17,6 +16,8 @@ const NewWordForm = () => {
     if (!myWords.includes(n) && !myNewWords.includes(n)) {
       setNewWord('');
       setMyNewWords([...myNewWords, n]);
+    } else {
+      window.alert('This word is already in your store!');
     }
   };
 
@@ -39,7 +40,7 @@ const NewWordForm = () => {
 
   return (
     <>
-      <Form>
+      <Form onSubmit={updateHandler}>
         <Form.Label>Add New Words To Your Store</Form.Label>
         {myNewWords.map((newWord, index) => (
           <Form.Group as={Row} key={index} className="mb-3" controlId="formAddNewWord">
@@ -76,6 +77,9 @@ const NewWordForm = () => {
             </Button>
           </Col>
         </Form.Group>
+        <Button type="submit" variant="warning">
+          Update My Words
+        </Button>
       </Form>
     </>
   );

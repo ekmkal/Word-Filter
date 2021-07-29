@@ -10,9 +10,6 @@ import { WORD_UPDATE_RESET } from '../constants/wordConstants';
 
 const MyWordsScreen = ({ history }) => {
   const [myWordsInState, setMyWordsInState] = useState([]);
-  // const [myNewWords, setMyNewWords] = useState(['some', 'new', 'words']);
-  // const [myNewWords, setMyNewWords] = useState([]);
-  // const [newWord, setNewWord] = useState('');
 
   const dispatch = useDispatch();
 
@@ -42,34 +39,10 @@ const MyWordsScreen = ({ history }) => {
       const index = updatedWordsArr.indexOf(word);
       if (index !== -1) {
         updatedWordsArr.splice(index, 1);
-        setMyWordsInState(updatedWordsArr);
+        dispatch(updateWords(updatedWordsArr));
       }
     }
   };
-
-  // const addNewWord = (n) => {
-  //   if (!myWordsInState.includes(n) && !myNewWords.includes(n)) {
-  //     setNewWord('');
-  //     setMyNewWords([...myNewWords, n]);
-  //   }
-  // };
-
-  // const removeNewWord = (n) => {
-  //   const updatedNewWordsArr = [...myNewWords];
-  //   console.log(updatedNewWordsArr);
-  //   const index = updatedNewWordsArr.indexOf(n);
-  //   console.log(index);
-  //   if (index !== -1) {
-  //     updatedNewWordsArr.splice(index, 1);
-  //     setMyNewWords(updatedNewWordsArr);
-  //   }
-  // };
-
-  // const updateHandler = () => {
-  //   if (window.confirm('Are you sure to update your word store?')) {
-  //     dispatch(updateWords(myWordsInState));
-  //   }
-  // };
 
   return (
     <>
