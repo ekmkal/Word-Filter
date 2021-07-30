@@ -8,6 +8,7 @@ import Loader from '../components/Loader';
 import Meta from '../components/Meta';
 import { listMyWords, updateWords } from '../actions/wordActions';
 import { WORD_UPDATE_RESET } from '../constants/wordConstants';
+import { suffixes } from '../suffixes.json';
 
 const HomeScreen = ({ history }) => {
   const dispatch = useDispatch();
@@ -15,6 +16,7 @@ const HomeScreen = ({ history }) => {
   const [myWordsInState, setMyWordsInState] = useState([]);
   const [myNewWords, setMyNewWords] = useState([]);
   const [text, setText] = useState('');
+  const [textWordsToFilter, setTextWordsToFilter] = useState([]);
   const [wordsNotInStore, setWordsNotInStore] = useState([]);
   const [knownWordCount, setKnownWordCount] = useState(0);
   const [noText, setNoText] = useState(false);
@@ -37,37 +39,9 @@ const HomeScreen = ({ history }) => {
       history.push('/');
       setMyWordsInState(myWords);
     }
-  }, [dispatch, history, myWords, userInfo, success]);
+  }, [dispatch, history, myWords, userInfo, success, wordsNotInStore]);
 
-  const suffixes = [
-    's',
-    'es',
-    'ing',
-    'd',
-    'ed',
-    'ly',
-    'er',
-    'r',
-    'st',
-    'tion',
-    'ion',
-    'y',
-    'en',
-    'ment',
-    'able',
-    'ity',
-    'lity',
-    'al',
-    'n',
-    'less',
-    'ness',
-    'est',
-    'ful',
-    'fully',
-  ];
-
-  const extractText = (e) => {
-    e.preventDefault();
+  const extractText = () => {
     if (text.split(' ').length === 1 && text.split(' ')[0] === '') {
       setNoText(true);
       setWordsNotInStore([]);
@@ -78,8 +52,15 @@ const HomeScreen = ({ history }) => {
       const extractedWordsArr = [];
       let count = 0;
       const textWordsArr = text
+        // Removing punctuations from the text
+        .replace(/[.,/#!?'"@%|<>$%^&*;:{}=\-_`~()]/g, '')
+        // Making all text lowercase
+        .toLowerCase()
+        // Making an array of the words in the text
         .split(' ')
+        // Filtering the words includes only alphabetics and more than 2 letters
         .filter((n) => n !== '' && !/[^a-zA-Z]/.test(n) && n.length > 2);
+      setTextWordsToFilter(textWordsArr);
       for (let suffix of suffixes) {
         // eslint-disable-next-line array-callback-return
         // eslint-disable-next-line no-loop-func
@@ -138,6 +119,9 @@ const HomeScreen = ({ history }) => {
   const updateHandler = () => {
     if (window.confirm('Are you sure to add these words to your store?')) {
       dispatch(updateWords([...myWords, ...myNewWords]));
+      dispatch({ type: WORD_UPDATE_RESET });
+      setWordsNotInStore(wordsNotInStore.filter((x) => !myNewWords.includes(x)));
+      extractText();
       setMyNewWords([]);
     }
   };
@@ -158,64 +142,82 @@ const HomeScreen = ({ history }) => {
         </Message>
       )}
 
-      <Row>
-        <Col sm="6">
-          <Form onSubmit={extractText}>
-            <Form.Label>Input the text you want to extract</Form.Label>
-            {noText && <Message variant="warning">Please input some text..</Message>}
-            <Form.Group className="mb-3" controlId="inputText">
-              <Form.Control
-                type="text"
-                placeholder="Write a text.."
-                onChange={(e) => {
-                  setText(e.target.value);
-                }}
-              />
-            </Form.Group>
-            <Button type="submit" variant="warning">
-              Extract
-            </Button>
-          </Form>
-        </Col>
-        {wordsNotInStore.length !== 0 && (
+      {userInfo && (
+        <Row>
           <Col sm="6">
-            <h3>Known Words Count: {knownWordCount}</h3>
-            <Table striped bordered hover responsive className="table-sm">
-              <thead>
-                <tr>
-                  <th>The Words Not In Your Store: {wordsNotInStore.length}</th>
-                  <th>ADD TO MY STORE</th>
-                </tr>
-              </thead>
-              <tbody>
-                {wordsNotInStore.map((word, index) => (
-                  <tr key={index}>
-                    <td>{word}</td>
-                    <td>
-                      {!myNewWords.includes(word) ? (
-                        <Button variant="info" className="btn-sm" onClick={() => addNewWord(word)}>
-                          <i className="fas fa-plus"></i>
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="danger"
-                          className="btn-sm"
-                          onClick={() => removeNewWord(word)}
-                        >
-                          <i className="fas fa-trash"></i>
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-            <Button type="submit" variant="warning" onClick={() => updateHandler}>
-              Update My Words
-            </Button>
+            <Form
+              onSubmit={(e) => {
+                e.preventDefault();
+                extractText();
+              }}
+            >
+              <Form.Label>Input the text you want to extract</Form.Label>
+              {noText && <Message variant="warning">Please input some text..</Message>}
+              <Form.Group className="mb-3" controlId="inputText">
+                <Form.Control
+                  as="textarea"
+                  placeholder="Write a text.."
+                  rows={15}
+                  onChange={(e) => {
+                    setText(e.target.value);
+                  }}
+                />
+              </Form.Group>
+              <Button type="submit" variant="warning">
+                Extract
+              </Button>
+            </Form>
           </Col>
-        )}
-      </Row>
+          {wordsNotInStore.length !== 0 && (
+            <Col sm="6">
+              <h3>Total Words: {textWordsToFilter.length}</h3>
+              <h3>Known Words Count: {knownWordCount}</h3>
+              <Table striped bordered hover responsive className="table-sm">
+                <thead>
+                  <tr>
+                    <th>The Words Not In Your Store: {wordsNotInStore.length}</th>
+                    <th>ADD TO MY STORE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {wordsNotInStore.map((word, index) => (
+                    <tr key={index}>
+                      <td>{word}</td>
+                      <td>
+                        {!myNewWords.includes(word) ? (
+                          <Button
+                            variant="info"
+                            className="btn-sm"
+                            onClick={() => addNewWord(word)}
+                          >
+                            <i className="fas fa-plus"></i>
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="danger"
+                            className="btn-sm"
+                            onClick={() => removeNewWord(word)}
+                          >
+                            <i className="fas fa-trash"></i>
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+              <Button
+                type="submit"
+                variant="warning"
+                disabled={myNewWords.length === 0}
+                onClick={updateHandler}
+              >
+                Update My Words
+              </Button>
+            </Col>
+          )}
+        </Row>
+      )}
     </>
   );
 };
